@@ -1,5 +1,4 @@
-let swapCount = 0
-
+//1. Heap Sort
 function heapify(A, i, heapSize) {
     let largest = i
     const left = 2 * i + 1
@@ -15,7 +14,6 @@ function heapify(A, i, heapSize) {
         const tmp = A[i]
         A[i] = A[largest]
         A[largest] = tmp
-        swapCount++
         heapify(A, largest, heapSize)
     }
 }
@@ -28,20 +26,18 @@ function buildMaxHeap(A) {
 }
 
 function heapSort(A) {
-    swapCount = 0
     buildMaxHeap(A)
     const n = A.length
     for (let end = n - 1; end >= 1; end--) {
         const tmp = A[0]
         A[0] = A[end]
         A[end] = tmp
-        swapCount++
         heapify(A, 0, end)
     }
     return A
 }
 
-
+//2. Quick Sort
 function quickSort(arr) {
     if (arr.length <= 1) {
         return arr
@@ -51,76 +47,157 @@ function quickSort(arr) {
     let pivot = arr[randomIndex]
 
     let left = []
-    let right = [] 
+    let middle = []
+    let right = []
 
-    for (let i = 1;i < arr.length; i++) {
-        if (i === randomIndex) continue
-
-        if(arr[i] < pivot) {
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] < pivot) {
             left.push(arr[i])
         }
-        else {
+        else if (arr[i] > pivot) {
             right.push(arr[i])
+        }
+        else {
+            middle.push(arr[i])
         }
     }
 
-    return [...quickSort(left), pivot, quickSort(right)]
+    return [...quickSort(left), ...middle, ...quickSort(right)]
 }
 
+//3. Bubble Sort
 function bubbleSort(arr) {
     for (let i = 0; i < arr.length; i++) {
         for (let j = 0; j < arr.length - 1; j++) {
             if (arr[j] > arr[j + 1]) {
-                let temp = arr[j];
-                arr[j] = arr[j + 1];
-                arr[j + 1] = temp;
+                let temp = arr[j]
+                arr[j] = arr[j + 1]
+                arr[j + 1] = temp
             }
         }
     }
-    return arr;
+    return arr
 }
 
+//4. Hybrid Sort (Quick + Bubble)
+function quickBubbleSort(arr) {
+    if (arr.length <= 20) {
+        return bubbleSort(arr)
+    }
 
-//Dane liczbowe
-const arr = Array.from(
+    let randomIndex = Math.floor(Math.random() * arr.length)
+    let pivot = arr[randomIndex]
+
+    let left = []
+    let middle = []
+    let right = []
+
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] < pivot) {
+            left.push(arr[i])
+        }
+        else if (arr[i] > pivot) {
+            right.push(arr[i])
+        }
+        else {
+            middle.push(arr[i])
+        }
+    }
+    return [...quickBubbleSort(left), ...middle, ...quickBubbleSort(right)]
+}
+
+//5. Hybrid Sort (Quick + Heap)
+function quickHeapSort(arr) {
+    if (arr.length <= 100) {
+        return heapSort(arr)
+    }
+
+    let randomIndex = Math.floor(Math.random() * arr.length)
+    let pivot = arr[randomIndex]
+
+    let left = []
+    let middle = []
+    let right = []
+
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] < pivot) {
+            left.push(arr[i])
+        }
+        else if (arr[i] > pivot) {
+            right.push(arr[i])
+        }
+        else {
+            middle.push(arr[i])
+        }
+    }
+    return [...quickHeapSort(left), ...middle, ...quickHeapSort(right)]
+}
+
+//6. Built-in Sort
+function builtinSort(arr) {
+    return arr.sort((a, b) => a - b)
+}
+
+// Losujemy 10 000 liczb tylko jeden raz
+const originalData = Array.from(
     { length: 10000 },
-    () => Math.floor(Math.random() * 100) //Dane z wieloma powtorzeniami (100000 zamien na 100)
+    () => Math.floor(Math.random() * 100000)
 )
 
-//Dane prawie posortowane
+// 1. Dane losowe
+const randomData = [...originalData]
 
-//arr.sort((a, b) => a - b)
-//for (let i = 0; i < 100; i++) {
-//    const index1 = Math.floor(Math.random() * arr.length)
-//    const index2 = Math.floor(Math.random() * arr.length)
-//
-//    const tmp = arr[index1]
-//    arr[index1] = arr[index2]
-//    arr[index2] = tmp
-//}
+// 2. Dane prawie posortowane
+const almostSortedData = [...originalData].sort((a, b) => a - b)
 
-//Dane odwrotnie posortowane
+for (let i = 0; i < 100; i++) {
+    const index1 = Math.floor(Math.random() * almostSortedData.length)
+    const index2 = Math.floor(Math.random() * almostSortedData.length)
 
-//arr.sort((a, b) => b - a)
+    const tmp = almostSortedData[index1]
+    almostSortedData[index1] = almostSortedData[index2]
+    almostSortedData[index2] = tmp
+}
 
+// 3. Dane z wieloma powtórzeniami
+const repeatedData = originalData.map(x => x % 100)
 
-
-
-console.time("Heap Sort")
-
-heapSort(arr)
-
-console.timeEnd("Heap Sort")
+// 4. Dane odwrotnie posortowane
+const reversedData = [...originalData].sort((a, b) => b - a)
 
 
-console.time("Quick Sort");
+function testAlgorithms(data, dataName) {
+    console.log(`\n--- ${dataName} ---`)
 
-quickSort(arr);
+    console.time("Heap Sort")
+    heapSort([...data])
+    console.timeEnd("Heap Sort")
 
-console.timeEnd("Quick Sort");
+    console.time("Quick Sort")
+    quickSort([...data])
+    console.timeEnd("Quick Sort")
 
-console.time("Bubble Sort");
+    console.time("Bubble Sort")
+    bubbleSort([...data])
+    console.timeEnd("Bubble Sort")
 
-bubbleSort(arr);
+    console.time("Quick + Bubble Sort")
+    quickBubbleSort([...data])
+    console.timeEnd("Quick + Bubble Sort")
 
-console.timeEnd("Bubble Sort");
+    console.time("Quick + Heap Sort")
+    quickHeapSort([...data])
+    console.timeEnd("Quick + Heap Sort")
+
+    console.time("Built-in Sort")
+    builtinSort([...data])
+    console.timeEnd("Built-in Sort")
+}
+
+testAlgorithms(randomData, "Dane losowe")
+
+testAlgorithms(almostSortedData, "Dane prawie posortowane")
+
+testAlgorithms(repeatedData, "Dane z wieloma powtórzeniami")
+
+testAlgorithms(reversedData, "Dane odwrotnie posortowane")
